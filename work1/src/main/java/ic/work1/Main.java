@@ -1,9 +1,17 @@
 package ic.work1;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.util.*;
+
 public class Main {
-    static void main() {
-        System.out.println("Hello World!");
+
+    public static void main(String[] args) {
+        GeneticAlgorithm ga = new GeneticAlgorithm();
+        Set<String> population = ga.generateInitialPopulation();
+
+        System.out.println("Population size: " + population.size());
+        int i = 1;
+        for (String chromosome : population) {
+            System.out.println("Chromosome " + i++ + ": " + chromosome);
+        }
     }
 }
