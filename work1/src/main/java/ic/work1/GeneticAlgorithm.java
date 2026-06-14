@@ -14,12 +14,17 @@ public class GeneticAlgorithm {
 
     private final Random random = new Random();
 
-    public Set<String> generateInitialPopulation() {
-        Set<String> population = new HashSet<>();
+    public List<Individual> generateInitialPopulation() {
+        Set<String> seen = new HashSet<>();
+        List<Individual> population = new ArrayList<>();
 
         while (population.size() < POPULATION_SIZE) {
             List<Integer> geneOrder = generateShuffleArray(SHUFFLE_ARRAY_SZ);
-            population.add(new String(generateChromosome(geneOrder)));
+            String chromosome = new String(generateChromosome(geneOrder));
+
+            if (seen.add(chromosome)) {
+                population.add(new Individual(chromosome, fitness(chromosome.toCharArray())));
+            }
         }
 
         return population;
@@ -51,6 +56,20 @@ public class GeneticAlgorithm {
         return shuffleArray.subList(0, size); // pega só 8
     }
 
+    // Avalia a aptidão de cada indivíduo da população e retorna o melhor indivíduo encontrado
+    public Individual findBestIndividual(List<Individual> population) {
+        Individual best = null;
+
+        for (Individual individual : population) {
+            if (best == null || individual.fitness() < best.fitness()) {
+                best = individual;
+            }
+            System.out.println("Chromosome: " + individual.chromosome() + " fitness = " + individual.fitness());
+        }
+
+        return best;
+    }
+
     public int fitness(char[] chromosome) {
         int S=-1, E=-1, N=-1, D=-1, M=-1, O=-1, R=-1, Y=-1;
 
@@ -67,10 +86,15 @@ public class GeneticAlgorithm {
             }
         }
 
-        int SEND  =             S*1000 + E*100 + N*10 + D;
-        int MORE  =             M*1000 + O*100 + R*10 + E;
+        int SEND  = S*1000 + E*100 + N*10 + D;
+        int MORE  = M*1000 + O*100 + R*10 + E;
         int MONEY = M*10000 + O*1000  + N*100 + E*10 + Y;
 
         return Math.abs((SEND + MORE) - MONEY); // 0 = solução perfeita
     }
+
+    public void rouletteSelection(List<Individual> population) {
+        // TODO...
+    }
+
 }

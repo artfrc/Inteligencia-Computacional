@@ -1,37 +1,31 @@
 package ic.work1;
 
-import java.util.Set;
+import java.util.List;
 
 public class Main {
 
-    private static final int MAX_ITERATIONS = 10000;
-    private static final int EXPERIMENTS = 10000;
-
     public static void main(String[] args) {
         GeneticAlgorithm ga = new GeneticAlgorithm();
-        int totalIterations = 0;
-        int successfulExperiments = 0;
 
-        for (int exp = 1; exp <= EXPERIMENTS; exp++) {
-            for (int iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
-                Set<String> population = ga.generateInitialPopulation();
-                int bestFitness = Integer.MAX_VALUE;
+        List<Individual> population = ga.generateInitialPopulation();
+        Individual best = ga.findBestIndividual(population);
 
-                for (String chromosome : population) {
-                    bestFitness = Math.min(bestFitness, ga.fitness(chromosome.toCharArray()));
-                }
+        System.out.println("Melhor cromossomo: " + best.chromosome());
+        System.out.println("Fitness: " + best.fitness());
 
-                if (bestFitness == 0) {
-                    System.out.println("Experimento " + exp + " | Solução encontrada na iteração " + iteration);
-                    totalIterations += iteration;
-                    successfulExperiments++;
-                    break;
-                }
-            }
+        while (best.fitness() != 0) {
+            //TODO: selecionar os pais
+
+            //TODO: fazer cruzamento
+
+            //TODO: mutação dos novos indivíduos
+
+            //TODO: avaliar filhos gerados
+
+            //TODO: gerar nova população
+
         }
 
-        System.out.println("\n=== Resultado ===");
-        System.out.println("Experimentos com solução: " + successfulExperiments + "/" + EXPERIMENTS);
-        System.out.println("Média de iterações: " + (totalIterations / (double) successfulExperiments));
+        System.out.println("Solução encontrada!");
     }
 }
