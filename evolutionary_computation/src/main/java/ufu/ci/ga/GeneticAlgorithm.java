@@ -5,8 +5,10 @@ import ufu.ci.ga.model.Individual;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -22,6 +24,15 @@ public class GeneticAlgorithm {
     private final Random random = new Random();
 
     private List<Individual> population;
+    private static final Map<String, Integer> GENE_INDEX_MAP = buildGeneIndexMap();
+
+    private static Map<String, Integer> buildGeneIndexMap() {
+        Map<String, Integer> map = new HashMap<>();
+        for (int i = 0; i < GENES_OPTIONS.length; i++) {
+            map.put(String.valueOf(GENES_OPTIONS[i]), i);
+        }
+        return Collections.unmodifiableMap(map);
+    }
 
     public GeneticAlgorithm() {
         this.population = new ArrayList<>();
@@ -29,15 +40,15 @@ public class GeneticAlgorithm {
 
     public void run() {
         generateInitialPopulation();
-        // TODO: avaliar populacao
+        fitness(population);
         System.out.println("Population generated with " + population.size() + " individuals.");
         int generation = 0;
         while(generation < GENERATIONS) {
             // TODO: selecionar Pcross para formarem pares de pais para o cruzamento
             // TODO: recombinar genes (cruzamento)
             if(!((random.nextInt(100) + 1) > MUTATION_RATE)) {
-                mutation(firstChild);
-                mutation(sndChild);
+//                mutation(firstChild);
+//                mutation(sndChild);
             }
             // TODO: avaliar filhos
             // TODO: selecionar os individuos sobreviventes (nova populacao)
@@ -98,6 +109,46 @@ public class GeneticAlgorithm {
         individual.setChromosome(chromosome);
         System.out.println(individual.toString());
         return individual;
+    }
+
+    private List<Individual> fitness(List<Individual> individualList) {
+        for (Individual ind : individualList) {
+            int[] chromosome = ind.getChromosome();
+
+            // Monta mapa inverso: índice da letra -> dígito atribuído
+            // chromosome[dígito] = índice_da_letra  (ou -1 se posição vazia)
+            int[] digitForLetter = new int[GENES_OPTIONS.length];
+            Arrays.fill(digitForLetter, -1);
+            for (int digit = 0; digit < CHROMOSOME_SIZE; digit++) {
+                int letterIdx = chromosome[digit];
+                if (letterIdx != -1) {
+                    digitForLetter[letterIdx] = digit;
+                }
+            }
+
+            int s = digitForLetter[GENE_INDEX_MAP.get("S")];
+            int e = digitForLetter[GENE_INDEX_MAP.get("E")];
+            int n = digitForLetter[GENE_INDEX_MAP.get("N")];
+            int d = digitForLetter[GENE_INDEX_MAP.get("D")];
+            int m = digitForLetter[GENE_INDEX_MAP.get("M")];
+            int o = digitForLetter[GENE_INDEX_MAP.get("O")];
+            int r = digitForLetter[GENE_INDEX_MAP.get("R")];
+            int y = digitForLetter[GENE_INDEX_MAP.get("Y")];
+
+            long send  =  1000L*s + 100*e + 10*n + d;
+            long more  =  1000L*m + 100*o + 10*r + e;
+            long money = 10000L*m + 1000*o + 100*n + 10*e + y;
+
+            double fitnessValue = Math.abs(send + more - money);
+
+            // Penaliza zeros à esquerda (S e M não podem ser 0)
+            if (s == 0 || m == 0) {
+                fitnessValue += 10000;
+            }
+
+            ind.setFitness(fitnessValue);
+        }
+        return individualList;
     }
 
     public Individual findBestIndividual() {
