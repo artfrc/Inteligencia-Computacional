@@ -17,6 +17,7 @@ public class GeneticAlgorithm {
     private static final int GENERATIONS = 50;
     private static final char[] GENES_OPTIONS = {'S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'};
     private static final int POPULATION_SIZE = 100;
+    private static final int MUTATION_RATE = 10;
 
     private final Random random = new Random();
 
@@ -31,9 +32,20 @@ public class GeneticAlgorithm {
         // TODO: avaliar populacao
         System.out.println("Population generated with " + population.size() + " individuals.");
         int generation = 0;
-        while(generation < GENERATIONS || findBestIndividual().getFitness() != 0.) {
+        while(generation < GENERATIONS) {
+            // TODO: selecionar Pcross para formarem pares de pais para o cruzamento
+            // TODO: recombinar genes (cruzamento)
+            if(!((random.nextInt(100) + 1) > MUTATION_RATE)) {
+                mutation(firstChild);
+                mutation(sndChild);
+            }
+            // TODO: avaliar filhos
+            // TODO: selecionar os individuos sobreviventes (nova populacao)
 
-
+            Individual best = findBestIndividual();
+            if(best.getFitness() == 0.) {
+                break;
+            }
             generation++;
         }
     }
@@ -44,6 +56,22 @@ public class GeneticAlgorithm {
             seen.add(generateIndividual());
         }
         population.addAll(seen);
+    }
+
+    private void mutation(Individual ind1) {
+        int[] chromosome = ind1.getChromosome();
+
+        int pos1 = random.nextInt(CHROMOSOME_SIZE);
+        int pos2 = random.nextInt(CHROMOSOME_SIZE);
+        while (pos2 == pos1) {
+            pos2 = random.nextInt(CHROMOSOME_SIZE);
+        }
+
+        int temp = chromosome[pos1];
+        chromosome[pos1] = chromosome[pos2];
+        chromosome[pos2] = temp;
+
+        ind1.setChromosome(chromosome);
     }
 
     private Individual generateIndividual() {
