@@ -3,6 +3,7 @@ package ufu.ci.ga;
 import ufu.ci.ga.model.Individual;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,9 +20,11 @@ public class GeneticAlgorithm {
     private static final int GENERATIONS = 50;
     private static final char[] GENES_OPTIONS = {'S', 'E', 'N', 'D', 'M', 'O', 'R', 'Y'};
     private static final int POPULATION_SIZE = 100;
-    private static final int MUTATION_RATE = 10;
+    private static final int MUTATION_RATE = 20;
+    private static final int ELITE_COUNT = (int) (POPULATION_SIZE * 0.2);
 
     private final Random random = new Random();
+    private double totalFitness = 0.;
 
     private List<Individual> population;
     private static final Map<String, Integer> GENE_INDEX_MAP = buildGeneIndexMap();
@@ -41,22 +44,57 @@ public class GeneticAlgorithm {
     public void run() {
         generateInitialPopulation();
         fitness(population);
-        System.out.println("Population generated with " + population.size() + " individuals.");
+        // System.out.println("Population generated with " + population.size() + " individuals.");
+        for (Individual ind : population) {
+            System.out.println(ind);
+        }
         int generation = 0;
-        while(generation < GENERATIONS) {
-            // TODO: selecionar Pcross para formarem pares de pais para o cruzamento
-            // TODO: recombinar genes (cruzamento)
-            if(!((random.nextInt(100) + 1) > MUTATION_RATE)) {
-//                mutation(firstChild);
-//                mutation(sndChild);
-            }
-            // TODO: avaliar filhos
-            // TODO: selecionar os individuos sobreviventes (nova populacao)
-
+        while (generation < GENERATIONS) {
             Individual best = findBestIndividual();
-            if(best.getFitness() == 0.) {
+            System.out.println("Geração " + generation + " | Melhor fitness: " + best.getFitness());
+            if (best.getFitness() == 0.) {
                 break;
             }
+
+            // seleciona pais e gera filhos
+            List<Individual> newPopulation = new ArrayList<>();
+            int crossoverCount = 0;
+            while (newPopulation.size() < POPULATION_SIZE - ELITE_COUNT) {
+                Individual parent1 = rouletteSelect();
+                Individual parent2;
+                do {
+                    parent2 = rouletteSelect();
+                } while (parent2.equals(parent1));
+
+                System.out.println("  [Cruzamento " + (++crossoverCount) + "]");
+                System.out.println("    Pai 1: " + parent1);
+                System.out.println("    Pai 2: " + parent2);
+
+                List<Individual> children = pmx(parent1, parent2);
+                Individual firstChild = children.get(0);
+                Individual sndChild = children.get(1);
+
+                if (!((random.nextInt(100) + 1) > MUTATION_RATE)) {
+                    mutation(firstChild);
+                    mutation(sndChild);
+                    System.out.println("    >> mutacao aplicada");
+                }
+                fitness(children);
+
+                System.out.println("    Filho 1: " + firstChild);
+                System.out.println("    Filho 2: " + sndChild);
+
+                newPopulation.add(firstChild);
+                if (newPopulation.size() < POPULATION_SIZE - ELITE_COUNT) {
+                    newPopulation.add(sndChild);
+                }
+            }
+
+            // nova populacao: elites + filhos gerados
+            population.sort(Comparator.comparingDouble(Individual::getFitness));
+            newPopulation.addAll(population.subList(0, ELITE_COUNT));
+            population = newPopulation;
+
             generation++;
         }
     }
@@ -107,7 +145,6 @@ public class GeneticAlgorithm {
 
         Individual individual = new Individual(CHROMOSOME_SIZE);
         individual.setChromosome(chromosome);
-        System.out.println(individual.toString());
         return individual;
     }
 
@@ -141,17 +178,30 @@ public class GeneticAlgorithm {
 
             double fitnessValue = Math.abs(send + more - money);
 
-            // Penaliza zeros à esquerda (S e M não podem ser 0)
-            if (s == 0 || m == 0) {
-                fitnessValue += 10000;
-            }
-
             ind.setFitness(fitnessValue);
+            ind.setScore(1.0 / fitnessValue);
         }
         return individualList;
     }
 
-    public Individual findBestIndividual() {
+    private Individual rouletteSelect() {
+        double totalWeight = 0;
+        for (Individual ind : population) {
+            totalWeight += ind.getScore();
+        }
+
+        double r = random.nextDouble() * totalWeight;
+        double accumulated = 0;
+        for (Individual ind : population) {
+            accumulated += ind.getScore();
+            if (accumulated >= r) {
+                return ind;
+            }
+        }
+        return population.get(population.size() - 1);
+    }
+
+    private Individual findBestIndividual() {
         Individual best = population.get(0);
         for (Individual individual : population) {
             if (individual.getFitness() < best.getFitness()) {
@@ -161,7 +211,81 @@ public class GeneticAlgorithm {
         return best;
     }
 
+    private List<Individual> pmx(Individual parent1, Individual parent2) {
+        int len = parent1.getChromosome().length;
+        int[] p1 = parent1.getChromosome();
+        int[] p2 = parent2.getChromosome();
+
+        int left = random.nextInt(len);
+        int right = random.nextInt(len);
+        while (right == left) right = random.nextInt(len);
+        if (left > right) { int t = left; left = right; right = t; }
+
+        // c1 herda segmento de p2, c2 herda segmento de p1
+        int[] c1 = Arrays.copyOf(p1, len);
+        int[] c2 = Arrays.copyOf(p2, len);
+        for (int i = left; i <= right; i++) {
+            c1[i] = p2[i];
+            c2[i] = p1[i];
+        }
+
+        Set<Integer> seg1 = segmentGenes(p2, left, right);
+        Set<Integer> seg2 = segmentGenes(p1, left, right);
+
+        for (int i = 0; i < len; i++) {
+            if (i >= left && i <= right) continue;
+            c1[i] = resolveGene(p1[i], p1, p2, left, right, seg1);
+            c2[i] = resolveGene(p2[i], p2, p1, left, right, seg2);
+        }
+
+        Individual child1 = new Individual(len);
+        Individual child2 = new Individual(len);
+        child1.setChromosome(c1);
+        child2.setChromosome(c2);
+        return List.of(child1, child2);
+    }
+
+    private Set<Integer> segmentGenes(int[] parent, int left, int right) {
+        Set<Integer> genes = new HashSet<>();
+        for (int i = left; i <= right; i++) {
+            if (parent[i] != -1) genes.add(parent[i]);
+        }
+        return genes;
+    }
+
+    // Segue a cadeia de mapeamento PMX até encontrar um gene sem conflito com o segmento
+    private int resolveGene(int gene, int[] from, int[] to, int left, int right, Set<Integer> segmentGenes) {
+        int current = gene;
+        while (current != -1 && segmentGenes.contains(current)) {
+            int pos = indexInSegment(to, current, left, right);
+            if (pos == -1) break;
+            current = from[pos];
+        }
+        return current;
+    }
+
+    private int indexInSegment(int[] arr, int value, int left, int right) {
+        for (int i = left; i <= right; i++) {
+            if (arr[i] == value) return i;
+        }
+        return -1;
+    }
+
     public List<Individual> getPopulation() {
         return population;
     }
+
+    public void setPopulation(List<Individual> population) {
+        this.population = population;
+    }
+
+    public double getTotalFitness() {
+        return totalFitness;
+    }
+
+    public void setTotalFitness(double totalFitness) {
+        this.totalFitness = totalFitness;
+    }
+
+
 }

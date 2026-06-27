@@ -6,9 +6,11 @@ public class Individual {
 
     private int[] chromosome;
     private double fitness;
+    private double score;
 
     public Individual(int size) {
         this.chromosome = new int[size];
+        Arrays.fill(this.chromosome, -1);
         this.fitness = 0.0;
     }
 
@@ -26,6 +28,14 @@ public class Individual {
 
     public void setFitness(double fitness) {
         this.fitness = fitness;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
     }
 
     @Override
