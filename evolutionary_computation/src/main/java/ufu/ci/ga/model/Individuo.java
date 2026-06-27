@@ -2,24 +2,23 @@ package ufu.ci.ga.model;
 
 import java.util.Arrays;
 
+// Uma solucao candidata. O cromossomo e um vetor de tamanho 10 (um por digito
+// de 0 a 9): a posicao e o digito e o valor e o indice da letra associada a ele.
+// Como sao 10 posicoes e 10 valores, e sempre uma permutacao de 0..9. Quando o
+// problema tem menos de 10 letras, os indices que sobram nao aparecem em nenhuma
+// palavra (letras "fantasma").
 public class Individuo {
 
     private int[] cromossomo;
     private double aptidao;
-    private double pontuacao;
 
-    public Individuo(int tamanho) {
-        this.cromossomo = new int[tamanho];
-        Arrays.fill(this.cromossomo, -1);
-        this.aptidao = 0.0;
+    public Individuo(int[] cromossomo) {
+        this.cromossomo = cromossomo;
+        this.aptidao = Double.MAX_VALUE;
     }
 
     public int[] getCromossomo() {
         return cromossomo;
-    }
-
-    public void setCromossomo(int[] cromossomo) {
-        this.cromossomo = cromossomo;
     }
 
     public double getAptidao() {
@@ -30,12 +29,10 @@ public class Individuo {
         this.aptidao = aptidao;
     }
 
-    public double getPontuacao() {
-        return pontuacao;
-    }
-
-    public void setPontuacao(double pontuacao) {
-        this.pontuacao = pontuacao;
+    public Individuo copia() {
+        Individuo novo = new Individuo(Arrays.copyOf(cromossomo, cromossomo.length));
+        novo.aptidao = this.aptidao;
+        return novo;
     }
 
     @Override
