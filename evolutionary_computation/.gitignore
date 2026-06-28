@@ -37,3 +37,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Material de apoio e documentos gerados ###
+*.pdf
+docs/
+RELATORIO.md
+Computacao_Evolutiva.txt
+Trabalho_ComputacaoEvolutiva (3).txt
