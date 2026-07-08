@@ -6,8 +6,6 @@ import ufu.ci.ga.Problema;
 
 import java.util.Random;
 
-// Roda uma configuracao do AG varias vezes e resume o percentual de
-// convergencia e o tempo medio de execucao.
 public class Executor {
 
     public static class ResultadoAgregado {

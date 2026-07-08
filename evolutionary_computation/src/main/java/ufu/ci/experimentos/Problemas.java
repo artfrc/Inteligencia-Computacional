@@ -2,7 +2,6 @@ package ufu.ci.experimentos;
 
 import ufu.ci.ga.Problema;
 
-// Os cinco problemas de criptoaritmetica usados nos experimentos.
 public class Problemas {
 
     public static final Problema SEND_MORE_MONEY = new Problema("SEND", "MORE", "MONEY");
