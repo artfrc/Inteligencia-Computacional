@@ -1,7 +1,5 @@
 package ufu.ci.ga;
 
-// Guarda os parametros e a escolha de operadores de uma execucao do AG.
-// Cada combinacao de campos e uma "variacao" avaliada no trabalho.
 public class Configuracao {
 
     public enum MetodoSelecao { TORNEIO, ROLETA }
