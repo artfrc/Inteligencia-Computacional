@@ -2,11 +2,6 @@ package ufu.ci.ga.model;
 
 import java.util.Arrays;
 
-// Uma solucao candidata. O cromossomo e um vetor de tamanho 10 (um por digito
-// de 0 a 9): a posicao e o digito e o valor e o indice da letra associada a ele.
-// Como sao 10 posicoes e 10 valores, e sempre uma permutacao de 0..9. Quando o
-// problema tem menos de 10 letras, os indices que sobram nao aparecem em nenhuma
-// palavra (letras "fantasma").
 public class Individuo {
 
     private int[] cromossomo;

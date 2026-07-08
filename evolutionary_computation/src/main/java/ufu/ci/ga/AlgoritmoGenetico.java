@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-// Algoritmo Genetico para problemas de criptoaritmetica. O comportamento e
-// definido por uma Configuracao, entao uma mesma classe roda todas as variacoes.
 public class AlgoritmoGenetico {
 
     public static class Resultado {

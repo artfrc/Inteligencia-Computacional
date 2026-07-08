@@ -3,10 +3,6 @@ package ufu.ci.ga;
 import java.util.ArrayList;
 import java.util.List;
 
-// Um problema de criptoaritmetica do tipo "parcela1 + parcela2 = resultado".
-// Guarda as letras distintas e oferece as duas funcoes de avaliacao do trabalho:
-// erro global (diferenca absoluta entre a soma e o resultado) e erro posicional
-// (soma das diferencas coluna a coluna da conta).
 public class Problema {
 
     public static final int TOTAL_DIGITOS = 10;
@@ -15,9 +11,9 @@ public class Problema {
     private final String parcela2;
     private final String resultado;
 
-    private final char[] letras;          // letras distintas, na ordem de aparecimento
-    private final int[] indicePorLetra;   // indexado por (letra - 'A'); -1 se a letra nao aparece
-    private final boolean[] letraInicial; // marca, por indice de letra, se ela inicia alguma palavra
+    private final char[] letras;
+    private final int[] indicePorLetra;
+    private final boolean[] letraInicial;
 
     public Problema(String parcela1, String parcela2, String resultado) {
         this.parcela1 = parcela1.toUpperCase();

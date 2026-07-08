@@ -91,10 +91,10 @@ public class Etapa1 {
     }
 
     private static String nomear(double taxaMutacao, MetodoSelecao selecao, MetodoCrossover crossover, MetodoReinsercao reinsercao) {
-        String tm = taxaMutacao == 0.10 ? "TM1" : "TM2";
-        String s = selecao == MetodoSelecao.TORNEIO ? "S1" : "S2";
-        String c = crossover == MetodoCrossover.CICLICO ? "C1" : "C2";
-        String r = reinsercao == MetodoReinsercao.ORDENADA ? "R1" : "R2";
+        String tm = taxaMutacao == 0.10 ? "Mutacao 10% (TM1)" : "Mutacao 20% (TM2)";
+        String s = selecao == MetodoSelecao.TORNEIO ? "Torneio com tour de 3 (S1)" : "Roleta (S2)";
+        String c = crossover == MetodoCrossover.CICLICO ? "Cíclico (C1)" : " PMX(C2)";
+        String r = reinsercao == MetodoReinsercao.ORDENADA ? "Ordenada (R1)" : "reinserção pura com 20% de elitismo (R2)";
         return tm + "-" + s + "-" + c + "-" + r;
     }
 }
